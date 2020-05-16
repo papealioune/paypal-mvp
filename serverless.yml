@@ -1,0 +1,35 @@
+service: bgpcpapealioune-paypalWebhook
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  deploymentBucket:
+    name: bgpc-bucket
+  deploymentPrefix: bgpcpapealioune
+  stackTags:
+    bgpcdeveloper: bgpcpapealioune
+
+functions:
+  paypalWebhook:
+    handler: index.handler
+    role: paypalWebhookRole
+    events: 
+    - http:
+        # Change to GET if paypal requires a different method
+        method: POST
+        path: paypalWebhook
+
+resources:
+  Resources:
+    paypalWebhookRole: 
+      Type: "AWS::IAM::Role"
+      Properties:
+        RoleName: bgpcpapealioune-sponsorsRole
+        AssumeRolePolicyDocument: 
+          Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Principal:
+                Service:
+                  - lambda.amazonaws.com
+              Action: sts:AssumeRole

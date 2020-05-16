@@ -1,0 +1,16 @@
+{
+  "name": "paypal-mvp",
+  "version": "1.0.0",
+  "description": "test paypal with serverless",
+  "main": "index.js",
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "paypal-rest-sdk": "^1.8.1",
+    "serverless": "^1.70.1"
+  },
+  "author": "",
+  "license": "ISC"
+}
