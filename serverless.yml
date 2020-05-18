@@ -1,5 +1,10 @@
 service: bgpcpapealioune-paypalWebhook
 
+package:
+  individually: true
+  exclude:
+    - ./**
+
 provider:
   name: aws
   runtime: nodejs12.x
@@ -13,14 +18,41 @@ functions:
   paypalWebhook:
     handler: index.handler
     role: paypalWebhookRole
-    events: 
-    - http:
+    events:
+      - http:
         # Change to GET if paypal requires a different method
-        method: POST
-        path: paypalWebhook
-
+          method: POST
+          path: paypalWebhook
+    package:
+      include:
+        - ./index.js
+    
 resources:
   Resources:
+    cloudwatchPolicy:
+      Type: AWS::IAM::Policy
+      Properties:
+        PolicyName: bgpcpapealioune-cloudwatch-policy
+        Roles:
+          # Important: all custom function roles should go here
+          # Otherwise you won't get any Cloudwatch logs when console.log()'ing
+          - !Ref paypalWebhookRole
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - logs:CreateLogGroup
+                - logs:CreateLogStream
+                - logs:PutLogEvents
+              Resource:
+                - 'Fn::Join':
+                  - ':'
+                  -
+                    - 'arn:aws:logs'
+                    - Ref: 'AWS::Region'
+                    - Ref: 'AWS::AccountId'
+                    - 'log-group:/aws/lambda/*:*:*'
     paypalWebhookRole: 
       Type: "AWS::IAM::Role"
       Properties:
@@ -33,3 +65,7 @@ resources:
                 Service:
                   - lambda.amazonaws.com
               Action: sts:AssumeRole
+  extensions:
+    PaypalWebhookLogGroup:
+      Properties:
+        LogGroupName: bgpcpapealioune-paypalWebhook-paypalWebhook-loggroup
